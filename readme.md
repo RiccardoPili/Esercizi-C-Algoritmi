@@ -52,10 +52,9 @@ bool palindrome_no_reverse(list l) {
 
 ### Funzioni ausiliarie utili
 A volte sono fornite alcune funzioni ausiliarie, in altri problemi invece fanno parte della soluzione, quindi può essere utile ricordarle:
-
-- [`copylist(list l)`](list.c#L45)  
-- [`reverse(list l)`](list.c#L53)  
-- [`concat(list a, list b)`](list.c#L62)  
+- [`copylist(list l)`](list.c#L44)
+- [`reverse(list l)`](list.c#L52)
+- [`concat(list a, list b)`](list.c#L61)
 
 
 # B-Tree
@@ -94,7 +93,7 @@ struct kTreeVertex {
 };
 typedef struct kTreeVertex* kTree;
 ```
-Sono alberi k-ari rappresentati come binari, tramite i puntatori child e sibling. I metodi sono simili a quelli degli alberi binari, ma in alcuni casi bisogna fare ricorsione per ogni figlio quindi spesso serve ridefinire un albero child: `kTree c = t->child` e poi fare un ciclo `while(c != NULL)`
+Sono **alberi k-ari rappresentati come binari**, tramite i puntatori `child` e `sibling`. I metodi sono simili a quelli degli alberi binari, ma in alcuni casi bisogna fare **ricorsione per ogni figlio** quindi spesso serve ridefinire un albero child: `kTree c = t->child` e poi fare un ciclo `while(c != NULL)`
 
 Un esempio di soluzione:
 ```c
@@ -116,14 +115,9 @@ int count_internals(kTree kt) {
 Le soluzioni sono **iterative** e consistono nello scorrere l'array tramite indici e applicare una  o più condizioni.
 A volte possono usare una funzione di supporto `swap(A, i , j)` per scambiare due elementi nell'array (di solito fornita).
 
-### Funzione ausiliaria swap
-```c
-void swap(int A[], int i, int j){
-    int temp = A[i];
-    A[i] = A[j];
-    A[j] = temp;
-}
-```
+In alcuni problemi è utile ricordarsi, o usare se fornita, la funzione ausiliaria swap:
+- [`swap(int A[], int i, int j)`](array.c#L9) 
+
 
 ### Esempio di soluzione
 ```c

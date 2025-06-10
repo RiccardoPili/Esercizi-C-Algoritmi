@@ -51,11 +51,11 @@ void printTree(kTree t, int d) {
     }
 }
 
-int max(int a, int b) {
+int Max(int a, int b) {
     return (a > b) ? a : b;
 }
 
-int min(int a, int b) {
+int Min(int a, int b) {
     return (a < b) ? a : b;
 }
 
@@ -87,7 +87,7 @@ bool isEmptyQueue(queue q) {
 
 // post: accoda t come ultimo elemento di q
 void EnQueue(kTree t, queue q) {
-    struct queueEl* newEl = malloc(sizeof(queueEl));
+    struct queueEl* newEl = malloc(sizeof(struct queueEl));
     newEl->info = t;
     newEl->next = NULL;
     if (q->front == NULL)
@@ -158,7 +158,7 @@ int height(kTree kt) {
         int h = 0;
         kTree c = kt->child;
         while (c != NULL) {
-            h = max(h, height(c) + 1);
+            h = Max(h, height(c) + 1);
             c = c->sibling;
         }
         return h;
@@ -242,7 +242,7 @@ int shortestBranch(kTree kt) {
     int res = INT_MAX;
     kTree c = kt->child;
     while (c != NULL) {
-        res = min(res, shortestBranch(c));
+        res = Min(res, shortestBranch(c));
         c = c->sibling;
     }
     return res + 1;  // Aggiungi 1 per il nodo corrente
