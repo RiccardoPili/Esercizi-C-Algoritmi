@@ -1,0 +1,4 @@
+{
+  "editor.formatOnSave": true,
+  "C_Cpp.clang_format_style": "{ BasedOnStyle: Google, BreakBeforeBraces: Attach, ColumnLimit: 0, IndentWidth: 4 }"
+}
