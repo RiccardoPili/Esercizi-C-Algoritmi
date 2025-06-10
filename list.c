@@ -14,7 +14,6 @@ struct listEl {
     int info;
     struct listEl* next;
 };
-
 typedef struct listEl* list;
 
 list Cons(int x, list xs) {
@@ -32,8 +31,6 @@ void printlist(list l) {
     printf("\n");
 }
 
-// ------------------ METODI AUSILIARI ------------------------------
-
 list ArrayToList(int A[], int n) {
     list l = NULL;
     for (int i = n - 1; i >= 0; i--) {
@@ -41,6 +38,8 @@ list ArrayToList(int A[], int n) {
     }
     return l;
 }
+
+// ------------------ METODI AUSILIARI ------------------------------
 
 list copylist(list l) {
     if (l == NULL) {

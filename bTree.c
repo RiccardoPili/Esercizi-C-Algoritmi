@@ -1,27 +1,28 @@
 /************************************
-*  Struttura per gli alberi binari
-*  (senza puntatore al padre)
-************************************/
+ *  Struttura per gli alberi binari
+ *  (senza puntatore al padre)
+ ************************************/
 
+#include <ctype.h>
+#include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
-#include <stdbool.h>
-#include <math.h>
+
 #include "list.h"
 
 struct BtreeNd {
-    int             key;
+    int key;
     struct BtreeNd* left;
     struct BtreeNd* right;
 };
 typedef struct BtreeNd* btree;
 
 typedef struct {
-    bool isOrdered;     // il sottoalbero è ordinato?
-    int min;            // min nel sottoalbero
-    int max;            // max nel sottoalbero
+    bool isOrdered;  // il sottoalbero è ordinato?
+    int min;         // min nel sottoalbero
+    int max;         // max nel sottoalbero
 } Triple;
 
 // ------------------ METODI AUSILIARI ------------------------------
@@ -34,11 +35,9 @@ btree ConsTree(int k, btree l, btree r) {
     return rootnode;
 }
 
-// stampa indentata dell'albero bt in preordine sinistro, con margine
-//      iniziale di n tab, senza visualizzare i puntatori a nil
 void printtree(btree bt, int n) {
     if (bt != NULL) {
-        for (int i = 0; i < n; i++) 
+        for (int i = 0; i < n; i++)
             printf("   ");
         printf("%d\n", bt->key);
         printtree(bt->left, n + 1);
@@ -46,12 +45,10 @@ void printtree(btree bt, int n) {
     }
 }
 
-// stampa indentata dell'albero bt in preordine sinistro, con margine
-//       iniziale di n tab, visualizzando i puntatori a nil
 void printtree2(btree bt, int n) {
-    for (int i = 0; i < n; i++) 
-            printf("   ");
-    if (bt == NULL) 
+    for (int i = 0; i < n; i++)
+        printf("   ");
+    if (bt == NULL)
         printf("nil\n");
     else {
         printf("%d\n", bt->key);
@@ -60,15 +57,14 @@ void printtree2(btree bt, int n) {
     }
 }
 
-
-
 // --------------- ESERCIZI SU ALBERI BINARI -----------------------
 
 /**
     post: somma di tutti i nodi dell'albero b
 */
 int sum_tree(btree b) {
-    if(b == NULL) return 0;
+    if (b == NULL)
+        return 0;
     else {
         return b->key + sum_tree(b->left) + sum_tree(b->right);
     }
@@ -94,9 +90,8 @@ int sum_mul3(btree b) {
 int count_internals(btree b) {
     if (b == NULL || (b->left == NULL && b->right == NULL)) {
         return 0;
-    }
-    else {
-       return 1 + count_internals(b->left) + count_internals(b->right); 
+    } else {
+        return 1 + count_internals(b->left) + count_internals(b->right);
     }
 }
 
@@ -104,10 +99,9 @@ int count_internals(btree b) {
     post: somma dei nodi interni (che hanno almeno una foglia)
 */
 int sum_internals(btree b) {
-    if(b == NULL || (b->left == NULL && b->right == NULL)){
+    if (b == NULL || (b->left == NULL && b->right == NULL)) {
         return 0;
-    }
-    else{
+    } else {
         return b->key + sum_internals(b->left) + sum_internals(b->right);
     }
 }
@@ -115,11 +109,11 @@ int sum_internals(btree b) {
 /*
     post: somma di tutte le foglie dell'albero
 */
-int sum_leaf(btree b){
-    if(b == NULL){
+int sum_leaf(btree b) {
+    if (b == NULL) {
         return 0;
     }
-    if(b->left == NULL && b->right == NULL){
+    if (b->left == NULL && b->right == NULL) {
         return b->key;
     }
     return sum_leaf(b->left) + sum_leaf(b->right);
@@ -133,8 +127,8 @@ list DescList(btree bt)
 list DescList_aux(btree bt, list l)
     post: ritorna la lista delle chiavi di bt in ordine descrescente davanti ad l
 */
-list DescList_aux(btree bt, list l){
-    if(bt == NULL){
+list DescList_aux(btree bt, list l) {
+    if (bt == NULL) {
         return l;
     }
     l = DescList_aux(bt->left, l);
@@ -142,11 +136,9 @@ list DescList_aux(btree bt, list l){
     return DescList_aux(bt->right, l);
 }
 
-list DescList(btree bt){
+list DescList(btree bt) {
     return DescList_aux(bt, NULL);
 }
-
-
 
 /*
     inserisce la chiave x nell'albero binario, mantenendo l'ordine
@@ -155,10 +147,10 @@ list DescList(btree bt){
     note: se la chiave x è già presente non inserisce il nodo
 */
 btree insert(int x, btree bt) {
-    if(bt == NULL) {
+    if (bt == NULL) {
         bt = ConsTree(x, NULL, NULL);
     }
-    if(x < bt->key) {
+    if (x < bt->key) {
         bt->left = insert(x, bt->left);
     } else if (x > bt->key) {
         bt->right = insert(x, bt->right);
@@ -167,8 +159,8 @@ btree insert(int x, btree bt) {
 }
 
 /*
-    restituisce true se l'albero binario di ricerca è ordinato 
-    esempio: 
+    restituisce true se l'albero binario di ricerca è ordinato
+    esempio:
             10                10
            /  \              /  \
           5    20          5    20
@@ -177,7 +169,7 @@ btree insert(int x, btree bt) {
     La funzione ritorna true per il primo albero e false per il secondo.
     note: usare la struct Triple fornita e una funzione ausiliaria
 */
-Triple isOrderedAux(btree bt){
+Triple isOrderedAux(btree bt) {
     // nodo foglia
     if (bt->left == NULL && bt->right == NULL) {
         Triple t = {true, bt->key, bt->key};
@@ -189,8 +181,7 @@ Triple isOrderedAux(btree bt){
         Triple t = {
             tleft.isOrdered && bt->key > tleft.max,
             tleft.min,
-            bt->key
-        };
+            bt->key};
         return t;
     }
     // solo figlio dx
@@ -199,8 +190,7 @@ Triple isOrderedAux(btree bt){
         Triple t = {
             tright.isOrdered && bt->key < tright.min,
             bt->key,
-            tright.max
-        };
+            tright.max};
         return t;
     }
     // entrambi i figli
@@ -210,15 +200,14 @@ Triple isOrderedAux(btree bt){
         Triple t = {
             tleft.isOrdered && tright.isOrdered && bt->key > tleft.max && bt->key < tright.min,
             tleft.min,
-            tright.max
-        };
+            tright.max};
         return t;
     }
 }
 
 bool isOrdered(btree bt) {
     // passo base: albero vuoto
-    if(bt == NULL) return true;
+    if (bt == NULL) return true;
     // passi ricorsivi: funzione ausiliaria
     else {
         Triple t = isOrderedAux(bt);
@@ -226,11 +215,10 @@ bool isOrdered(btree bt) {
     }
 }
 
-
 /*
     Scrivere una funzione che ritorni l'antenato comune ad 'a' e 'b' più prossimo.
     'a' e 'b' sono chiavi intere, con a < b.
-    esempio: 
+    esempio:
             10
            /  \
           5    20
@@ -244,31 +232,24 @@ bool isOrdered(btree bt) {
 btree antenatoComune(btree bt, int a, int b) {
     if (a <= bt->key && b >= bt->key) {
         return bt;
-    }
-    else if (bt->key < a) {
+    } else if (bt->key < a) {
         return antenatoComune(bt->right, a, b);
-    }
-    else if (bt->key > b) {
+    } else if (bt->key > b) {
         return antenatoComune(bt->left, a, b);
-    }
-    else {
+    } else {
         printf("Errore: albero o parametri non validi.\n");
         exit(EXIT_FAILURE);
     }
 }
 
-
 // ------------------------- MAIN ---------------------------
-int main()
-{
+int main() {
     btree bt =
         ConsTree(21,
-            ConsTree(35,
-                ConsTree(9, NULL, NULL),
-                ConsTree(1, NULL, NULL)
-            ),
-            ConsTree(5, NULL, ConsTree(3, NULL, NULL))
-        );
+                 ConsTree(35,
+                          ConsTree(9, NULL, NULL),
+                          ConsTree(1, NULL, NULL)),
+                 ConsTree(5, NULL, ConsTree(3, NULL, NULL)));
 
     printf("Albero binario BT:\n");
     printtree(bt, 0);
@@ -284,15 +265,12 @@ int main()
 
     btree bst =
         ConsTree(10,
-            ConsTree(5,
-                ConsTree(1, NULL, NULL),
-                ConsTree(6, NULL, NULL)
-            ),
-            ConsTree(20,
-                ConsTree(12, NULL, NULL),
-                ConsTree(22, NULL, NULL)
-            )
-        );
+                 ConsTree(5,
+                          ConsTree(1, NULL, NULL),
+                          ConsTree(6, NULL, NULL)),
+                 ConsTree(20,
+                          ConsTree(12, NULL, NULL),
+                          ConsTree(22, NULL, NULL)));
     printf("\nAlbero binario di ricerca BST: \n");
     printtree(bst, 0);
     printf("\nChiavi ordinate descrescenti: ");

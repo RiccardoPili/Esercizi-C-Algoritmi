@@ -1,22 +1,21 @@
 /************************************
-* Struttura dati degli alberi k-ari
-************************************/
+ * Struttura dati degli alberi k-ari
+ ************************************/
 
+#include <ctype.h>
+#include <limits.h>
+#include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
-#include <stdbool.h>
-#include <math.h>
-#include <limits.h>
 
-// ------------- STRUTTURA DATI ALBERO K-ARIO ------------- 
+// ------------- STRUTTURA DATI ALBERO K-ARIO -------------
 struct kTreeVertex {
-    int                  key;
-    struct kTreeVertex*  child;
-    struct kTreeVertex*  sibling;
+    int key;
+    struct kTreeVertex* child;
+    struct kTreeVertex* sibling;
 };
-
 typedef struct kTreeVertex* kTree;
 
 // crea un nuovo nodo
@@ -42,8 +41,8 @@ kTree root(int k, kTree c) {
 //       iniziale di n tab
 void printTree(kTree t, int d) {
     if (t != NULL)
-    for (int i = 0; i < d; ++i)
-        printf("   ");
+        for (int i = 0; i < d; ++i)
+            printf("   ");
     printf("%d\n", t->key);
     kTree cl = t->child;
     while (cl != NULL) {
@@ -62,15 +61,15 @@ int min(int a, int b) {
 
 // ------------ STRUTTURA DATI AUSILIARIA QUEUE (CODE) ------------
 struct queueEl {
-    kTree            info;
+    kTree info;
     struct queueEl* next;
 };
+typedef struct queueEl* queueEl;
 
 struct queueFrame {
-    struct queueEl* front; // primo el. della coda
-    struct queueEl* rear;  // ultimo el. della coda
+    struct queueEl* front;  // primo el. della coda
+    struct queueEl* rear;   // ultimo el. della coda
 };
-
 typedef struct queueFrame* queue;
 
 // post: alloca e ritorna una coda vuota
@@ -87,13 +86,13 @@ bool isEmptyQueue(queue q) {
 }
 
 // post: accoda t come ultimo elemento di q
-void EnQueue (kTree t, queue q) {
-    struct queueEl* newEl = malloc(sizeof(struct queueEl));
+void EnQueue(kTree t, queue q) {
+    struct queueEl* newEl = malloc(sizeof(queueEl));
     newEl->info = t;
     newEl->next = NULL;
     if (q->front == NULL)
         q->front = q->rear = newEl;
-    else // q->front != NULL implica q->rear != NULL
+    else  // q->front != NULL implica q->rear != NULL
     {
         q->rear->next = newEl;
         q->rear = newEl;
@@ -111,7 +110,7 @@ kTree First(queue q) {
 kTree DeQueue(queue q) {
     kTree t = q->front->info;
     struct queueEl* oldFirst = q->front;
-    if (q->front == q->rear) // la coda ha un solo el.
+    if (q->front == q->rear)  // la coda ha un solo el.
         q->front = q->rear = NULL;
     else
         q->front = q->front->next;
@@ -119,16 +118,15 @@ kTree DeQueue(queue q) {
     return t;
 }
 
-
-
 // ---------------- ESERCIZI SU ALBERI K-ARI -----------------
 
 /*
     post: somma di tutti i nodi dell'albero k-ario
 */
-int sum_ktree(kTree kt){
-    if(kt == NULL) return 0;
-    else{
+int sum_ktree(kTree kt) {
+    if (kt == NULL)
+        return 0;
+    else {
         return kt->key + sum_ktree(kt->child) + sum_ktree(kt->sibling);
     }
 }
@@ -144,7 +142,7 @@ int count_internals(kTree kt) {
     kTree c = kt->child;
     while (c != NULL) {
         sum += count_internals(c);  // ricorsione su ogni figlio
-        c = c->sibling;  // passa al fratello successivo
+        c = c->sibling;             // passa al fratello successivo
     }
     return sum;
 }
@@ -153,14 +151,13 @@ int count_internals(kTree kt) {
     post: Altezza dell'albero k-ario (numero max di rami)
     note: usare funzione ausiliaria max
 */
-int height(kTree kt){
-    if(kt->child == NULL) {
+int height(kTree kt) {
+    if (kt->child == NULL) {
         return 0;
-    }
-    else {
+    } else {
         int h = 0;
         kTree c = kt->child;
-        while(c != NULL){
+        while (c != NULL) {
             h = max(h, height(c) + 1);
             c = c->sibling;
         }
@@ -168,19 +165,18 @@ int height(kTree kt){
     }
 }
 
-
 /*
     pre: t!=NULL
     post: il massimo delle somme delle etichette sui rami di t
     note: usare max(int a, int b), la soluzione è simile a DFS
 */
-int maxSumBranch(kTree t){
-    if(t->child == NULL){
+int maxSumBranch(kTree t) {
+    if (t->child == NULL) {
         return t->key;
     }
     int maxSum = 0;
     kTree c = t->child;
-    while(c != NULL){
+    while (c != NULL) {
         int sum = maxSumBranch(c);
         maxSum = max(maxSum, sum);
         c = c->sibling;
@@ -188,17 +184,16 @@ int maxSumBranch(kTree t){
     return t->key + maxSum;
 }
 
-
 /*
     post: Calcola la somma delle etichette di tutte le foglie dell'albero k-ario
 */
-int sumLeaf (kTree t) {
-    if(t == NULL) return 0;
-    if(t->child == NULL) return t->key;
-    
+int sumLeaf(kTree t) {
+    if (t == NULL) return 0;
+    if (t->child == NULL) return t->key;
+
     kTree c = t->child;
     int sum = 0;
-    while(c != NULL){
+    while (c != NULL) {
         sum += sumLeaf(c);
         c = c->sibling;
     }
@@ -211,23 +206,23 @@ int sumLeaf (kTree t) {
     note: la soluzione è una BFS modificata, usare la struttura dati ausiliaria Queue
 */
 int rank(kTree kt) {
-    if(kt == NULL) return 0;
+    if (kt == NULL) return 0;
 
     int maxRank = 0;
     queue q = NewQueue();
     EnQueue(kt, q);
 
-    while(!isEmptyQueue(q)){
-        int childCount = 0; //figli del nodo corrente
+    while (!isEmptyQueue(q)) {
+        int childCount = 0;  // figli del nodo corrente
         kTree n = DeQueue(q);
         kTree c = n->child;
-        while (c != NULL) // scorre tutti i sibling
+        while (c != NULL)  // scorre tutti i sibling
         {
-            EnQueue(c, q); // Aggiungi il figlio alla coda
+            EnQueue(c, q);  // Aggiungi il figlio alla coda
             childCount++;
             c = c->sibling;
         }
-        if(childCount > maxRank) {
+        if (childCount > maxRank) {
             maxRank = childCount;
         }
     }
@@ -242,7 +237,7 @@ int rank(kTree kt) {
 */
 int shortestBranch(kTree kt) {
     if (kt->child == NULL) {
-        return 1; // Caso base: nodo foglia
+        return 1;  // Caso base: nodo foglia
     }
     int res = INT_MAX;
     kTree c = kt->child;
@@ -250,7 +245,7 @@ int shortestBranch(kTree kt) {
         res = min(res, shortestBranch(c));
         c = c->sibling;
     }
-    return res + 1; // Aggiungi 1 per il nodo corrente
+    return res + 1;  // Aggiungi 1 per il nodo corrente
 }
 
 /*
@@ -286,22 +281,16 @@ int nodiProfondi(kTree kt, int h) {
     return count;
 }
 
-
 // ------------------------- MAIN ---------------------------
 int main() {
     kTree kt =
-       root(12, 
-            consTree(22, 
-                leaf(1,NULL), 
-                leaf(2, 
-                    root(32, 
-                        leaf(3, 
-                            leaf(4, NULL)
-                        )
-                    )
-                )
-            )
-       );
+        root(12,
+             consTree(22,
+                      leaf(1, NULL),
+                      leaf(2,
+                           root(32,
+                                leaf(3,
+                                     leaf(4, NULL))))));
 
     printf("Albero dato:\n");
     printTree(kt, 0);
