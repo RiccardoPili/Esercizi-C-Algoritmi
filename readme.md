@@ -68,18 +68,26 @@ typedef struct BtreeNd* btree;
 ```
 Gli alberi binari sono rappresentati con un nodo i cui campi sono un intero `key`, e due puntatori ai sottoalberi sinistro `left` e destro `right`. La maggior parte delle soluzioni sono **ricorsive** e si basano sul ricongiungersi al passo base secondo una condizione di `b` `b->left` e `b->right` e poi quando viene chiamato il passo ricorsivo viene chiamato sui figli sinistro e destro.
 
+Può essere utile utilizzare la funzione `ConsTree` usata solo per l'inserimento o aggiunta di qualche nodo all'albero, come avviene nella funzione  [`insert(int x, btree bt)`](bTree.c#L152)
+
 ### Alberi binari di ricerca
-Un **albero binario di ricerca** è 
+Un **albero binario di ricerca** è un albero binario "ordinato" secondo certe proprietà:
+- il nodo left < parent
+- il nodo right > parent
+- i nodi sono univoci (non possono esserci duplicati)
+
+(Ovviamente i sottoalberi sinistro e destro devono essere a loro volta alberi binari di ricerca)
 
 ### Esempio di soluzione tipica
 ```c
-int count_internals(btree b) {
-    if (b == NULL || (b->left == NULL && b->right == NULL)) {
+int sum_leaf(btree b) {
+    if (b == NULL) {
         return 0;
     }
-    else {
-       return 1 + count_internals(b->left) + count_internals(b->right); 
+    if (b->left == NULL && b->right == NULL) {
+        return b->key;
     }
+    return sum_leaf(b->left) + sum_leaf(b->right);
 }
 ```
 
@@ -93,21 +101,22 @@ struct kTreeVertex {
 };
 typedef struct kTreeVertex* kTree;
 ```
-Sono **alberi k-ari rappresentati come binari**, tramite i puntatori `child` e `sibling`. I metodi sono simili a quelli degli alberi binari, ma in alcuni casi bisogna fare **ricorsione per ogni figlio** quindi spesso serve ridefinire un albero child: `kTree c = t->child` e poi fare un ciclo `while(c != NULL)`
+Sono **alberi k-ari rappresentati come binari**, tramite i puntatori `child` e `sibling`. I metodi sono simili a quelli degli alberi binari, ma in alcuni casi bisogna fare **ricorsione per ogni figlio** quindi spesso serve ridefinire un albero child: `kTree c = t->child` e poi fare un ciclo `while(c != NULL)`. Le funzioni sono simili tra loro, quello che cambia sono i passi base, i valori restituiti e le operazioni all'interno del ciclo while. A volte possono usare le funzioni ausiliarie `min` e `max`.
 
-Un esempio di soluzione:
+### Esempio di soluzione
 ```c
-int count_internals(kTree kt) {
-    if (kt == NULL || kt->child == NULL) {
-        return 0;
+int maxSumBranch(kTree t) {
+    if (t->child == NULL) {
+        return t->key;
     }
-    int sum = 1;
-    kTree c = kt->child;
+    int maxSum = 0;
+    kTree c = t->child;
     while (c != NULL) {
-        sum += count_internals(c);
+        int sum = maxSumBranch(c);
+        maxSum = max(maxSum, sum);
         c = c->sibling;
     }
-    return sum;
+    return t->key + maxSum;
 }
 ```
 
@@ -146,3 +155,10 @@ int maxDecSeq(int A[], int n){
     return maxLen;
 }
 ```
+
+# Heap
+Un heap è un albero binario rappresentato tramite un array H con le seguenti proprietà:
+- H[0] = elemento fittizio (null)
+- H[1] = radice dell'albero
+- figlio Sx = parent * 2
+- figlio Dx = parent * 2 + 1

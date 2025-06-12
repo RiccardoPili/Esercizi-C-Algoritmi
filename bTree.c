@@ -12,6 +12,9 @@
 
 #include "list.h"
 
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) < (b) ? (a) : (b))
+
 struct BtreeNd {
     int key;
     struct BtreeNd* left;

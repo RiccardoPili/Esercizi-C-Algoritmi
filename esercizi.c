@@ -1,9 +1,13 @@
 #include <ctype.h>
+#include <limits.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) < (b) ? (a) : (b))
 
 struct listEl {
     int info;
@@ -113,9 +117,15 @@ void printKTree(kTree t, int d) {
     }
 }
 
+typedef struct {
+    bool isOrdered;  // il sottoalbero è ordinato?
+    int min;         // min nel sottoalbero
+    int max;         // max nel sottoalbero
+} Triple;
+
 /**
  * -----------------------------------------------------------------------------------------------------------
- * ESERCIZI SU LISTE, ALBERI BINARI E ALBERI K-ARI
+ * ESERCIZI SU LISTE
  * -----------------------------------------------------------------------------------------------------------
  */
 
@@ -242,6 +252,208 @@ list oddEven(list l) {
     return concat(reverse(dispari), reverse(pari));
 }
 
+/**
+ * -----------------------------------------------------------------------------------------------------------
+ * ESERCIZI SU ALBERI BINARI
+ * -----------------------------------------------------------------------------------------------------------
+ */
+
+int sum_tree(btree bt) {
+    if (bt == NULL)
+        return 0;
+    else
+        return bt->key + sum_tree(bt->left) + sum_tree(bt->right);
+}
+
+int sum_internals(btree bt) {
+    if (bt == NULL || (bt->left == NULL && bt->right == NULL))
+        return 0;
+    else
+        return bt->key + sum_internals(bt->left) + sum_internals(bt->right);
+}
+
+int sum_leaf(btree bt) {
+    if (bt == NULL)
+        return 0;
+    else if (bt->left == NULL && bt->right == NULL)
+        return bt->key;
+    else
+        return sum_leaf(bt->left) + sum_leaf(bt->right);
+}
+
+btree insert(int x, btree b) {
+    if (b == NULL)
+        return ConsTree(x, NULL, NULL);
+
+    if (x < b->key)
+        b->left = insert(x, b->left);
+    else if (x > b->key)
+        b->right = insert(x, b->right);
+    else {
+        perror("Errore, impossibile inserire un nodo già presente");
+        exit(EXIT_FAILURE);
+    }
+    return b;
+}
+
+btree antenatoComune(btree bt, int a, int b) {
+    if (a <= bt->key && b >= bt->key)
+        return bt;
+    else if (a > bt->key)
+        return antenatoComune(bt->right, a, b);
+    else if (b < bt->key)
+        return antenatoComune(bt->left, a, b);
+    else {
+        perror("Errore nei parametri dell'albero");
+        exit(EXIT_FAILURE);
+    }
+}
+
+list DescList_aux(btree bt, list l) {
+    if (bt == NULL)
+        return l;
+    l = DescList_aux(bt->left, l);
+    l = Cons(bt->key, l);
+    return DescList_aux(bt->right, l);
+}
+
+list DescList(btree bt) {
+    return DescList_aux(bt, NULL);
+}
+
+Triple isOrderedAux(btree bt) {
+    // nodo foglia
+    if (bt->left == NULL && bt->right == NULL) {
+        Triple t = {true, bt->key, bt->key};
+        return t;
+    }
+    // solo nodo sinistro
+    else if (bt->left != NULL && bt->right == NULL) {
+        Triple tLeft = isOrderedAux(bt->left);
+        Triple t = {
+            tLeft.isOrdered && bt->key > tLeft.max,
+            tLeft.min,
+            bt->key};
+        return t;
+    }
+    // solo nodo destro
+    else if (bt->right != NULL && bt->left == NULL) {
+        Triple tRight = isOrderedAux(bt->right);
+        Triple t = {
+            tRight.isOrdered && bt->key < tRight.min,
+            bt->key,
+            tRight.max};
+        return t;
+    }
+    // entrambi i figli
+    else {
+        Triple tLeft = isOrderedAux(bt->left);
+        Triple tRight = isOrderedAux(bt->right);
+        Triple t = {
+            tLeft.isOrdered && tRight.isOrdered && bt->key > tLeft.max && bt->key < tRight.min,
+            tLeft.min,
+            tRight.max};
+        return t;
+    }
+}
+bool isOrdered(btree bt) {
+    if (bt == NULL)
+        return true;
+    else {
+        Triple t = isOrderedAux(bt);
+        return t.isOrdered;
+    }
+}
+
+/**
+ * -----------------------------------------------------------------------------------------------------------
+ * ESERCIZI SU ALBERI K-ARY
+ * -----------------------------------------------------------------------------------------------------------
+ */
+
+int sum_internals_ktree(kTree t) {
+    if (t == NULL || t->child == NULL)
+        return 0;
+    int sum = t->key;
+    kTree c = t->child;
+    while (c != NULL) {
+        sum += sum_internals_ktree(c);
+        c = c->sibling;
+    }
+    return sum;
+}
+
+int height(kTree t) {
+    if (t->child == NULL)
+        return 0;
+    int h = 0;
+    kTree c = t->child;
+    while (c != NULL) {
+        h = max(h, height(c) + 1);
+        c = c->sibling;
+    }
+    return h;
+}
+
+int maxSumBranch(kTree t) {
+    if (t == NULL)
+        return 0;
+    if (t->child == NULL)
+        return t->key;
+    int maxSum = 0;
+    kTree c = t->child;
+    while (c != NULL) {
+        int currSum = maxSumBranch(c);
+        maxSum = max(currSum, maxSum);
+        c = c->sibling;
+    }
+    return maxSum + t->key;
+}
+
+int sumLeaf(kTree t) {
+    if (t == NULL)
+        return 0;
+    if (t->child == NULL)
+        return t->key;
+
+    int sum = 0;
+    kTree c = t->child;
+    while (c != NULL) {
+        sum += sumLeaf(c);
+        c = c->sibling;
+    }
+    return sum;
+}
+
+int shortestBranch(kTree t) {
+    if (t->child == NULL)
+        return 1;  // nodo foglia
+
+    int minL = INT_MAX;
+    kTree c = t->child;
+    while (c != NULL) {
+        int currMin = shortestBranch(c);
+        minL = min(minL, currMin);
+        c = c->sibling;
+    }
+    return minL + 1;
+}
+
+int nodiProfondi(kTree t, int h) {
+    if (t == NULL)
+        return 0;
+    if (h == 0)
+        return 1;
+
+    int count = 1;
+    kTree c = t->child;
+    while (c != NULL) {
+        count += nodiProfondi(c, h - 1);
+        c = c->sibling;
+    }
+    return count;
+}
+
 int main() {
     printf("\n======================== LISTE ========================\n\n");
     list L1 = Cons(1, Cons(2, Cons(3, Cons(5, Cons(7, Cons(8, Cons(10, NULL)))))));
@@ -286,14 +498,72 @@ int main() {
     printlist(oddEven(L1));
 
     printf("\n======================== B-TREE =======================\n\n");
-    btree my_tree = ConsTree(1, ConsTree(2, NULL, NULL), ConsTree(3, NULL, NULL));
+    // ALBERO BINARIO DI RICERCA
+    //         5
+    //        / \
+    //       3   8
+    //      / \   \
+    //     1   4   10
+    //          \
+    //           6
+    btree my_tree = ConsTree(
+        5,
+        ConsTree(
+            3,
+            ConsTree(1, NULL, NULL),
+            ConsTree(4, NULL, ConsTree(6, NULL, NULL))),
+        ConsTree(
+            8,
+            NULL,
+            ConsTree(10, NULL, NULL)));
     printf("Binary Tree:\n");
     printtree(my_tree, 0);
 
-    printf("\n======================== K-TREE =======================\n\n");
-    kTree my_k_tree = root(12, ConsKTree(22, leaf(1, NULL), leaf(2, NULL)));
-    printf("K-ary Tree:\n");
-    printKTree(my_k_tree, 0);
+    printf("\nSomma dei nodi dell'albero: %d\n", sum_tree(my_tree));
 
-    return 0;
+    printf("Somma dei nodi interni dell'albero: %d\n", sum_internals(my_tree));
+
+    printf("Somma delle foglie dell'albero: %d\n", sum_leaf(my_tree));
+
+    printf("\nInserisco il nodo 7 nell'albero...\n");
+    my_tree = insert(7, my_tree);
+    printtree(my_tree, 0);
+
+    // Prova inserimento di un duplicato (dovrebbe dare errore)
+    // printf("\nProvo a inserire il nodo 3 (già presente)...\n");
+    // my_tree = insert(3, my_tree);
+    // printtree(my_tree, 0);
+
+    printf("\n======================== K-TREE =======================\n\n");
+    // ALBERO K-ARIO
+    //         12
+    //        / | \
+    //      22  2  32
+    //      /      / \
+    //     1      3   4
+
+    kTree kt =
+        root(12,
+             ConsKTree(22,
+                       leaf(1, NULL),
+                       leaf(2,
+                            root(32,
+                                 leaf(3,
+                                      leaf(4, NULL))))));
+
+    printf("K-ary Tree:\n");
+    printKTree(kt, 0);
+
+    printf("\nAltezza dell'albero k-ario: %d\n", height(kt));
+
+    printf("Somma dei nodi interni dell'albero k-ario: %d\n", sum_internals_ktree(kt));
+
+    printf("Max somma delle etichette dei rami: %d\n", maxSumBranch(kt));
+
+    printf("Somma delle foglie dell'albero k-ario: %d\n", sumLeaf(kt));
+
+    printf("Lunghezza del ramo più corto dell'albero k-ario: %d\n", shortestBranch(kt));
+
+    printf("Numero di nodi profondi (h=1) nell'albero k-ario: %d\n", nodiProfondi(kt, 1));
+    printf("Numero di nodi profondi (h=2) nell'albero k-ario: %d\n", nodiProfondi(kt, 2));
 }

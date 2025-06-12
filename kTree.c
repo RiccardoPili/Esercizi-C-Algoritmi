@@ -10,6 +10,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+
 // ------------- STRUTTURA DATI ALBERO K-ARIO -------------
 struct kTreeVertex {
     int key;
@@ -49,14 +52,6 @@ void printTree(kTree t, int d) {
         printTree(cl, d + 1);
         cl = cl->sibling;
     }
-}
-
-int Max(int a, int b) {
-    return (a > b) ? a : b;
-}
-
-int Min(int a, int b) {
-    return (a < b) ? a : b;
 }
 
 // ------------ STRUTTURA DATI AUSILIARIA QUEUE (CODE) ------------
@@ -132,7 +127,7 @@ int sum_ktree(kTree kt) {
 }
 
 /*
-    post: Conta il numero di nodi interni (che hanno almeno una foglia)
+    post: Conta il numero di nodi interni dell'albero k-ario
 */
 int count_internals(kTree kt) {
     if (kt == NULL || kt->child == NULL) {
@@ -148,6 +143,21 @@ int count_internals(kTree kt) {
 }
 
 /*
+    post: somma le chiavi dei nodi interni dell'albero k-ario
+*/
+int sum_internals(kTree t) {
+    if (t == NULL || t->child == NULL)
+        return 0;
+    int sum = t->key;
+    kTree c = t->child;
+    while (c != NULL) {
+        sum += sum_internals(c);
+        c = c->sibling;
+    }
+    return sum;
+}
+
+/*
     post: Altezza dell'albero k-ario (numero max di rami)
     note: usare funzione ausiliaria max
 */
@@ -158,7 +168,7 @@ int height(kTree kt) {
         int h = 0;
         kTree c = kt->child;
         while (c != NULL) {
-            h = Max(h, height(c) + 1);
+            h = max(h, height(c) + 1);
             c = c->sibling;
         }
         return h;
@@ -188,8 +198,10 @@ int maxSumBranch(kTree t) {
     post: Calcola la somma delle etichette di tutte le foglie dell'albero k-ario
 */
 int sumLeaf(kTree t) {
-    if (t == NULL) return 0;
-    if (t->child == NULL) return t->key;
+    if (t == NULL)
+        return 0;
+    if (t->child == NULL)
+        return t->key;
 
     kTree c = t->child;
     int sum = 0;
@@ -198,6 +210,57 @@ int sumLeaf(kTree t) {
         c = c->sibling;
     }
     return sum;
+}
+
+/*
+    Calcola la lunghezza del ramo più breve dell'albero
+    Con lunghezza si intende il numero di nodi attraversati dalla radice alla foglia
+    note: l'albero k-ario si può considerare non vuoto
+    note: soluzione simile ad una DFS
+*/
+int shortestBranch(kTree kt) {
+    if (kt->child == NULL) {
+        return 1;  // Caso base: nodo foglia
+    }
+    int res = INT_MAX;
+    kTree c = kt->child;
+    while (c != NULL) {
+        res = min(res, shortestBranch(c));
+        c = c->sibling;
+    }
+    return res + 1;  // Aggiungi 1 per il nodo corrente
+}
+
+/*
+    Calcola il numero di nodi "profondi", ovvero che si trovano ad un livello
+    inferiore o uguale ad h
+    note: con livello 0 si intende la radice, a scendere gli altri livelli
+
+    esempio:
+            12
+           / | \
+         22  2  5
+        /   /|\
+       1   8 4 6
+          /
+         3
+
+    Per h = 1, i nodi profondi sono: 12, 22, 2, 5 (totale = 4)
+    Per h = 2, i nodi profondi sono: 12, 22, 2, 5, 1, 8, 4, 6 (totale = 8)
+*/
+int nodiProfondi(kTree kt, int h) {
+    if (kt == NULL)
+        return 0;
+    if (h == 0)
+        return 1;
+
+    int count = 1;
+    kTree c = kt->child;
+    while (c != NULL) {
+        count += nodiProfondi(c, h - 1);
+        c = c->sibling;
+    }
+    return count;
 }
 
 /*
@@ -229,58 +292,6 @@ int rank(kTree kt) {
     return maxRank;
 }
 
-/*
-    Calcola la lunghezza del ramo più breve dell'albero
-    Con lunghezza si intende il numero di nodi attraversati dalla radice alla foglia
-    note: l'albero k-ario si può considerare non vuoto
-    note: soluzione simile ad una DFS
-*/
-int shortestBranch(kTree kt) {
-    if (kt->child == NULL) {
-        return 1;  // Caso base: nodo foglia
-    }
-    int res = INT_MAX;
-    kTree c = kt->child;
-    while (c != NULL) {
-        res = Min(res, shortestBranch(c));
-        c = c->sibling;
-    }
-    return res + 1;  // Aggiungi 1 per il nodo corrente
-}
-
-/*
-    Calcola il numero di nodi "profondi", ovvero che si trovano ad un livello
-    inferiore o uguale ad h
-    note: con livello 0 si intende la radice, a scendere gli altri livelli
-
-    esempio:
-            12
-           / | \
-         22  2  5
-        /   /|\
-       1   8 4 6
-          /
-         3
-
-    Per h = 1, i nodi profondi sono: 12, 22, 2, 5 (totale = 4)
-    Per h = 2, i nodi profondi sono: 12, 22, 2, 5, 1, 8, 4, 6 (totale = 8)
-*/
-int nodiProfondi(kTree kt, int h) {
-    if (kt == NULL) {
-        return 0;
-    }
-    if (h == 0) {
-        return 1;
-    }
-    int count = 1;
-    kTree c = kt->child;
-    while (c != NULL) {
-        count += nodiProfondi(c, h - 1);
-        c = c->sibling;
-    }
-    return count;
-}
-
 // ------------------------- MAIN ---------------------------
 int main() {
     kTree kt =
@@ -295,20 +306,22 @@ int main() {
     printf("Albero dato:\n");
     printTree(kt, 0);
 
-    printf("\nSum: %d\n", sum_ktree(kt));
+    printf("\nSum all nodes: %d\n", sum_ktree(kt));
 
     printf("\nInternal Nodes: %d\n", count_internals(kt));
 
-    printf("\nAltezza albero: %d\n", height(kt));
+    printf("\nSum internal nodes: %d\n", sum_internals(kt));
 
-    printf("\nMax somma etichette ramo: %d\n", maxSumBranch(kt));
+    printf("\nAltezza albero: %d\n", height(kt));
 
     printf("\nSomma delle foglie: %d\n", sumLeaf(kt));
 
-    printf("\nRango dell'albero: %d\n", rank(kt));
-
     printf("\nLunghezza Cammino minimo: %d\n", shortestBranch(kt));
+
+    printf("\nMax somma etichette ramo: %d\n", maxSumBranch(kt));
 
     printf("\nNodi Profondi (livello <= 1): %d", nodiProfondi(kt, 1));
     printf("\nNodi Profondi (livello <= 2): %d\n", nodiProfondi(kt, 2));
+
+    printf("\nRango dell'albero: %d\n", rank(kt));
 }
