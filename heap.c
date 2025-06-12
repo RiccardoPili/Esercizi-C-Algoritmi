@@ -12,9 +12,9 @@ void swap(int A[], int i, int j) {
     A[j] = temp;
 }
 
-void printArray(int A[], int n) {
+void printHeapArray(int A[], int n) {
     printf("[ ");
-    for (int i = 1; i < n; i++) {
+    for (int i = 1; i <= n; i++) {
         printf("%d ", A[i]);
     }
     printf("]\n");
@@ -29,44 +29,39 @@ void printArray(int A[], int n) {
     se minore viene scambiato). Heap rappresentato come array.
 */
 void Insert(int h[], int* size, int x) {
-    // Incremento la dimensione e inserisco il nuovo elemento in fondo
-    (*size)++;
-    h[*size] = x;
-    
-    // Risalgo l'albero confrontando con i genitori
-    int i = *size;
-    while (i > 0 && h[i/2] > h[i]) {
-        swap(h, i, i/2);
-        i = i/2;
+    (*size)++;              // Incrementa la dimensione dell'heap (aggiunge un nodo)
+    h[*size] = x;           // Inserisce il nuovo elemento x in fondo all'heap
+
+    int i = *size;          // Salva l'indice dell'elemento appena inserito
+    while (i > 1 && h[i/2] > h[i]) { // Finché il nodo ha un genitore e il genitore è maggiore
+        swap(h, i, i/2);    // Scambia il nodo con il suo genitore
+        i = i / 2;          // Aggiorna l'indice per risalire l'heap
     }
 }
 
-/*:
-    Scrivere una funzione che implementi l'estrazione del minimo da un MinHeap 'h'
-    avente h.size > 0.
-    (Tolgo elemento iniziale, al suo posto ci metto quello finale e chiamo heapify).
-    (Per semplicita' gli elementi dello heap sono interi).
+/*
+    Scrivere una funzione che implementi l'operazione di MinHeapify.
+    Questa funzione ricorsiva ricostruisce la proprietà del MinHeap a partire da un nodo i.   
 */
 void MinHeapify(int h[], int size, int i) {
-    int smallest = i;        // Inizializzo il più piccolo come la radice
-    int left = 2 * i;       // Indice figlio sinistro
-    int right = 2 * i + 1;   // Indice figlio destro
-    
-    // Se il figlio sinistro è minore della radice
-    if (left < size && h[left] < h[smallest]) {
-        smallest = left;
+    int smallest = i;         // Assume che il nodo corrente sia il più piccolo
+    int left = 2 * i;         // Calcola l'indice del figlio sinistro
+    int right = 2 * i + 1;    // Calcola l'indice del figlio destro
+
+    // Se il figlio sinistro esiste ed è minore del nodo corrente
+    if (left <= size && h[left] < h[smallest]) {
+        smallest = left;      // Aggiorna il più piccolo con il figlio sinistro
     }
-    
-    // Se il figlio destro è minore del più piccolo finora
-    if (right < size && h[right] < h[smallest]) {
-        smallest = right;
+
+    // Se il figlio destro esiste ed è minore del più piccolo finora trovato
+    if (right <= size && h[right] < h[smallest]) {
+        smallest = right;     // Aggiorna il più piccolo con il figlio destro
     }
-    
-    // Se il più piccolo non è la radice
+
+    // Se il più piccolo non è il nodo corrente
     if (smallest != i) {
-        swap(h, i, smallest);
-        // Continuo ricorsivamente con il sottoalbero
-        MinHeapify(h, size, smallest);
+        swap(h, i, smallest);                // Scambia il nodo corrente con il figlio minore
+        MinHeapify(h, size, smallest);       // Continua ricorsivamente nel sottoalbero
     }
 }
 
@@ -77,35 +72,26 @@ void MinHeapify(int h[], int size, int i) {
     (Per semplicita' gli elementi dello heap sono interi).
 */
 int ExtractMin(int h[], int* size) {
-    // Controllo se l'heap è vuoto
+    // Controlla se l'heap è vuoto
     if (*size <= 0) {
-        printf("Heap vuoto\n");
-        return -1;  // Valore di errore
+        printf("Heap vuoto\n");   // Stampa messaggio di errore
+        return -1;                // Ritorna valore di errore
     }
-    
-    // Salvo il minimo da restituire
-    int min = h[1];
-    
-    // Sposto l'ultimo elemento alla radice e diminuisco la dimensione
-    h[1] = h[*size];
-    (*size)--;
-    
-    // Ripristino la proprietà dell'heap
-    MinHeapify(h, *size, 1);
-    
-    return min;
+
+    int min = h[1];               // Salva il minimo (radice del min-heap)
+
+    h[1] = h[*size];              // Sostituisce la radice con l'ultimo elemento
+    (*size)--;                    // Decrementa la dimensione dell'heap
+
+    MinHeapify(h, *size, 1);      // Ripristina la proprietà di min-heap partendo dalla radice
+
+    return min;                   // Ritorna il valore minimo estratto
 }
 
 
 
 int main() {
-    printf("Un MinHeap è un albero binario rappresentato come un array H con le seguenti proprieta':");
-    printf("\n - H[0] = elemento fittizio");
-    printf("\n - H[1] = min (radice)");
-    printf("\n - left = 2 * i");
-    printf("\n - right = 2 * i + 1");
-
-    printf("\n\n--> Test MinHeap e Insert\n");
+    printf("--> TEST Insert\n");
     int minHeap[100];
     int minHeapSize = 0;
     
@@ -118,17 +104,17 @@ int main() {
     Insert(minHeap, &minHeapSize, 7);
     
     printf("MinHeap dopo gli inserimenti: ");
-    printArray(minHeap, minHeapSize);
+    printHeapArray(minHeap, minHeapSize);
     
 
-    printf("\n--> Test ExtractMin\n");
+    printf("\n--> TEST ExtractMin e MinHeapify\n");
     printf("Estrazione del minimo: %d\n", ExtractMin(minHeap, &minHeapSize));
     printf("MinHeap dopo estrazione: ");
-    printArray(minHeap, minHeapSize);
+    printHeapArray(minHeap, minHeapSize);
     
     printf("Estrazione del minimo: %d\n", ExtractMin(minHeap, &minHeapSize));
     printf("MinHeap dopo estrazione: ");
-    printArray(minHeap, minHeapSize);
+    printHeapArray(minHeap, minHeapSize);
     
     return 0;
 }
