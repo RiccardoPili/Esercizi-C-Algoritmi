@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "list.h"
+
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 
@@ -130,25 +132,29 @@ int sum_ktree(kTree kt) {
     post: Conta il numero di nodi interni dell'albero k-ario
 */
 int count_internals(kTree kt) {
+    // caso base: albero vuoto o senza figli
     if (kt == NULL || kt->child == NULL) {
         return 0;
     }
-    int sum = 1;
+
+    int count = 1; // inizializza il conteggio a 1 per il nodo corrente
     kTree c = kt->child;
     while (c != NULL) {
-        sum += count_internals(c);  // ricorsione su ogni figlio
+        count += count_internals(c);  // ricorsione su ogni figlio
         c = c->sibling;             // passa al fratello successivo
     }
-    return sum;
+    return count;
 }
 
 /*
     post: somma le chiavi dei nodi interni dell'albero k-ario
 */
 int sum_internals(kTree t) {
+    // caso base: albero vuoto o senza figli
     if (t == NULL || t->child == NULL)
         return 0;
-    int sum = t->key;
+
+    int sum = t->key; // inizializza la somma con la chiave del nodo corrente
     kTree c = t->child;
     while (c != NULL) {
         sum += sum_internals(c);
@@ -162,13 +168,14 @@ int sum_internals(kTree t) {
     note: usare funzione ausiliaria max
 */
 int height(kTree kt) {
+    // caso base: albero vuoto
     if (kt->child == NULL) {
         return 0;
     } else {
-        int h = 0;
+        int h = 0; // inizializza l'altezza a 0
         kTree c = kt->child;
         while (c != NULL) {
-            h = max(h, height(c) + 1);
+            h = max(h, height(c) + 1); // l'altezza è il max tra l'altezza corrente e quella dei figli + 1
             c = c->sibling;
         }
         return h;
@@ -181,14 +188,15 @@ int height(kTree kt) {
     note: usare max(int a, int b), la soluzione è simile a DFS
 */
 int maxSumBranch(kTree t) {
+    // caso base: albero senza figli (nodo foglia)
     if (t->child == NULL) {
         return t->key;
     }
-    int maxSum = 0;
+    int maxSum = 0; // inizializza la somma massima a 0
     kTree c = t->child;
     while (c != NULL) {
-        int sum = maxSumBranch(c);
-        maxSum = max(maxSum, sum);
+        int sum = maxSumBranch(c); // calcola la somma del ramo corrente
+        maxSum = max(maxSum, sum); // aggiorna la somma massima
         c = c->sibling;
     }
     return t->key + maxSum;
@@ -198,13 +206,14 @@ int maxSumBranch(kTree t) {
     post: Calcola la somma delle etichette di tutte le foglie dell'albero k-ario
 */
 int sumLeaf(kTree t) {
+    // casi base: albero vuoto o nodo foglia
     if (t == NULL)
         return 0;
     if (t->child == NULL)
         return t->key;
 
+    int sum = 0; // inizializza la somma a 0
     kTree c = t->child;
-    int sum = 0;
     while (c != NULL) {
         sum += sumLeaf(c);
         c = c->sibling;
@@ -219,16 +228,17 @@ int sumLeaf(kTree t) {
     note: soluzione simile ad una DFS
 */
 int shortestBranch(kTree kt) {
+    // caso base: albero senza figli (nodo foglia)
     if (kt->child == NULL) {
-        return 1;  // Caso base: nodo foglia
+        return 1;
     }
-    int res = INT_MAX;
+    int res = INT_MAX; // inizializza il risultato a un valore molto grande (MAX_INT)
     kTree c = kt->child;
     while (c != NULL) {
-        res = min(res, shortestBranch(c));
+        res = min(res, shortestBranch(c)); // la lunghezza del ramo più breve è il minimo tra i rami dei figli
         c = c->sibling;
     }
-    return res + 1;  // Aggiungi 1 per il nodo corrente
+    return res + 1;  // aggiunge 1 per considerare il nodo corrente
 }
 
 /*
@@ -249,24 +259,88 @@ int shortestBranch(kTree kt) {
     Per h = 2, i nodi profondi sono: 12, 22, 2, 5, 1, 8, 4, 6 (totale = 8)
 */
 int nodiProfondi(kTree kt, int h) {
+    // casi base: albero vuoto o h <= 0
     if (kt == NULL)
         return 0;
     if (h == 0)
         return 1;
 
-    int count = 1;
+    int count = 1; // inizializza il conteggio a 1 per il nodo corrente
     kTree c = kt->child;
     while (c != NULL) {
-        count += nodiProfondi(c, h - 1);
+        count += nodiProfondi(c, h - 1); // ricorsione sui figli, decrementando h
         c = c->sibling;
     }
     return count;
 }
 
 /*
-    Calcola il grado di un albero (eventualmente anche vuoto)
-    Il grado è il massimo numero di nodi figli tra tutti i nodi dell'albero
-    note: la soluzione è una BFS modificata, usare la struttura dati ausiliaria Queue
+    post: calcola il grado dell'albero k-ario, ovvero il numero massimo di figli
+          che un nodo può avere (il grado massimo)
+    note: usare funzione ausiliaria max
+    esempio:
+            12
+           / | \
+         22  2  5
+        /   /|\
+       1   8 4 6
+          /
+         3
+
+    Il grado dell'albero è 3, perché il nodo con chiave 2 ha tre figli (8, 4, e 6)
+*/
+int degree(kTree t){
+    // caso base: albero senza figli (nodo foglia)
+	if(t->child == NULL)
+		return 0;
+
+	int curr = 0; // numero di figli del nodo corrente
+	int max_deg = 0; // grado massimo trovato finora
+	kTree c = t->child;
+	while(c != NULL){
+		curr++; // incremento il conteggio dei figli del nodo corrente
+		max_deg = max(max_deg, degree(c)); // aggiorna il grado massimo 
+		c = c->sibling;
+	}
+	return max(max_deg, curr); // restituisce il massimo tra il grado massimo trovato e il numero di figli del nodo corrente
+}
+
+/*
+    post: restituisce la lista delle chiavi delle foglie dell'albero k-ario
+    note: usare una funzione ausiliaria ricorsiva e una funzione di supporto
+    per costruire la lista
+    esempio:
+            12
+           / | \
+         22  2  5
+        /   /|\
+       1   8 4 6
+          /
+         3
+    La lista delle foglie sarà: [1, 3, 4, 6]
+*/
+list fringe_aux(kTree t, list l){
+	// caso base: albero vuoto
+    if (t == NULL)
+		return l; // restituisce la lista
+
+	l = fringe_aux(t->sibling, l);   // chiama sul sibling
+	if (t->child == NULL)
+		l = Cons(t->key, l);         // se il nodo è una foglia (non ha child), lo aggiunge alla lista
+	else
+		l = fringe_aux(t->child, l); // altrimenti chiama ricorsivamente sui figli
+
+    return l; // restituisce la lista
+}
+list fringe(kTree t){
+	return fringe_aux(t, NULL);      // funzione di supporto che chiama fringeaux con lista vuota
+}
+
+
+/*
+    post: calcola il rango dell'albero k-ario, ovvero il numero massimo di figli
+          che un nodo può avere (il grado massimo)
+    note: usare una coda Queue per visitare l'albero in ampiezza (BFS)
 */
 int rank(kTree kt) {
     if (kt == NULL) return 0;
@@ -324,4 +398,14 @@ int main() {
     printf("\nNodi Profondi (livello <= 2): %d\n", nodiProfondi(kt, 2));
 
     printf("\nRango dell'albero: %d\n", rank(kt));
+
+    printf("\nGrado dell'albero: %d\n", degree(kt));
+
+    printf("\nFringe (foglie) dell'albero: ");
+    list leaves = fringe(kt);
+    while (leaves != NULL) {
+        printf("%d ", leaves->info);
+        leaves = leaves->next;
+    }
+    printf("\n");
 }

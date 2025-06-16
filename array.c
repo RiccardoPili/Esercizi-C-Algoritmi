@@ -29,17 +29,19 @@ void printArray(int A[], int n) {
     note: usare la funzione ausiliaria swap
 */
 void oddEven(int A[], int n) {
+    // i scorre da sinistra verso destra, j da destra verso sinistra
     int i = 0;
     int j = n - 1;
+    
     while (i < j) {
-        while (A[i] % 2 == 1) {
+        while (A[i] % 2 == 1) { // scorre fino a trovare un pari
             i++;
         }
-        while (A[j] % 2 == 0) {
+        while (A[j] % 2 == 0) { // scorre fino a trovare un dispari
             j--;
         }
         if (i < j) {
-            swap(A, i, j);
+            swap(A, i, j); // scambia i due elementi
         }
     }
 }
@@ -50,46 +52,21 @@ void oddEven(int A[], int n) {
     esempio: A = {5 6 2 8 9 6 3 4 1} restituisce 3
 */
 int maxDecSeq(int A[], int n) {
-    int count = 1;
-    int max = 1;
+    int max = 1;    // massima lunghezza trovata
+    int curr = 1;   // lunghezza corrente della sottosequenza decrescente
 
     for (int i = 1; i < n; i++) {
-        if (A[i - 1] > A[i]) {
-            count++;
-        } else {
-            if (count > max) {
-                max = count;
-            }
-            count = 1;
-        }
-    }
-    if (count > max) {
-        max = count;
+        if (A[i-1] > A[i]) // finché la sequenza è decrescente incremento la lunghezza corrente
+            curr++;
+        else
+            curr = 1; // resetto la lunghezza corrente
+
+        if (curr > max)
+            max = curr; // aggiorno la massima lunghezza trovata
     }
     return max;
 }
 
-char *strtrim(char *s, int start, int end) {
-    if (start > end || s == NULL || strlen(s) < start || strlen(s) < end) {
-        return NULL;
-    }
-    int i;
-    char *result = malloc(strlen(s) + 1);
-    for (i = 0; i < start; i++) {
-        result[i] = s[i];  // copia i caratteri fino a start
-    }
-    int j = i;
-    for (; i <= end; i++);  // salta i caratteri compresi
-
-    for (; s[i] != '\0'; i++) {  // copia i caratteri da end fino alla fine
-        result[j] = s[i];
-        j++;
-    }
-    result[j + 1] = '\0';  // aggiunge il fine stringa
-
-    result = realloc(result, i - (end - start));
-    return result;
-}
 
 int main() {
     int A[] = {3, 8, 5, 12, 7, 6, 9, 10, 15, 2};
@@ -104,8 +81,4 @@ int main() {
     printf("Array dopo oddEven: ");
     printArray(A, n);
     printf("Massima lunghezza sottosequenza ordinata descrescente: %d\n\n", maxDecSeq(A, n));
-
-    char *s = "Per me si va HELLO nella";
-    char *res = strtrim(s, 13, 17);
-    printf("%s\n", res);
 }

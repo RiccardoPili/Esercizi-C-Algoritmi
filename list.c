@@ -109,9 +109,9 @@ list delete_all(int x, list l) {
     if (l == NULL) return l;
 
     if (l->info == x) {
-        return delete_all(x, l->next);
+        return delete_all(x, l->next); // se l'elemento corrente è x, lo salto
     } else {
-        l->next = delete_all(x, l->next);
+        l->next = delete_all(x, l->next); // altrimenti aggiorna il next e richiama ricorsivamente
         return l;
     }
 }
@@ -126,7 +126,7 @@ list unione(list l, list m) {
     if (l == NULL) return m;
     if (m == NULL) return l;
 
-    if (l->info <= m->info) {
+    if (l->info <= m->info) { 
         return Cons(l->info, unione(l->next, m));
     } else {
         return Cons(m->info, unione(l, m->next));
@@ -147,7 +147,7 @@ list unione_no_dup(list l, list m) {
         return Cons(l->info, unione_no_dup(l->next, m));
     } else if (l->info > m->info) {
         return Cons(m->info, unione_no_dup(l, m->next));
-    } else {
+    } else { // se sono uguali, salta l'elemento
         return Cons(l->info, unione_no_dup(l->next, m->next));
     }
 }
@@ -166,11 +166,11 @@ list diff(list l, list m) {
     if (M == NULL) return L;
 
     if (L->info < M->info) {
-        return Cons(L->info, diff(L->next, M));
-    } else if (L->info == M->info) {
-        return diff(L->next, M->next);
-    } else {
+        return Cons(L->info, diff(L->next, M)); // se l'elemento di L non è in M, lo aggiungo alla lista
+    } else if (L->info > M->info) {
         return diff(L, M->next);
+    } else { // se sono uguali, salto l'elemento
+        return diff(L->next, M->next);
     }
 }
 
@@ -201,7 +201,7 @@ list intersect(list l, list m) {
     if (l == NULL || m == NULL) return NULL;  // intersezione vuota
 
     if (l->info == m->info) {
-        return Cons(l->info, intersect(l->next, m->next));
+        return Cons(l->info, intersect(l->next, m->next)); // se gli elementi sono uguali, lo aggiungo alla lista
     } else if (l->info < m->info) {
         return intersect(l->next, m);
     } else {
@@ -223,7 +223,7 @@ int rank(list l) {
     if (l == NULL)
         return 0;
     else {
-        l->info = l->info + rank(l->next);
+        l->info = l->info + rank(l->next); // aggiorna il valore del nodo corrente con la somma dei valori successivi
         return l->info;
     }
 }
@@ -259,7 +259,7 @@ bool palindrome(list l) {
     list rev = reverse(l);
     while (l != NULL) {
         if (l->info != rev->info) {
-            return false;
+            return false; // se trova un elemento diverso, non è palindroma
         }
         l = l->next;
         rev = rev->next;
@@ -277,13 +277,14 @@ bool palindrome_no_reverse(list l) {
     list rev = NULL;
     list temp = l;
 
+    // costruisce la lista inversa
     while (temp != NULL) {
         rev = Cons(temp->info, rev);
         temp = temp->next;
     }
     while (l != NULL) {
         if (l->info != rev->info) {
-            return false;
+            return false; // se trova un elemento diverso, non è palindroma
         }
         l = l->next;
         rev = rev->next;
@@ -304,14 +305,37 @@ list oddEven(list l) {
 
     while (l != NULL) {
         if (l->info % 2 != 0) {
-            dispari = Cons(l->info, dispari);
+            dispari = Cons(l->info, dispari); // costruisce la lista (inversa) dei dispari
         } else {
-            pari = Cons(l->info, pari);
+            pari = Cons(l->info, pari); // costruisce la lista (inversa) dei pari
         }
         l = l->next;
     }
 
-    return concat(reverse(dispari), reverse(pari));
+    return concat(reverse(dispari), reverse(pari)); // concatena le due liste, prima i dispari e poi i pari
+}
+
+/*
+Split di una lista
+    pre: l è una lista di interi, eventualmente vuota
+    post: divide la lista in due metà, restituendo la seconda metà.
+    Se la lista ha un numero dispari di elementi, la prima metà conterrà un elemento in più.
+    Esempio: [1, 2, 3, 4, 5] diventa [4, 5]
+*/
+list split(list l) {
+    if (l == NULL || l->next == NULL)
+        return NULL;
+
+    // Usa due puntatori, uno lento e uno veloce, alla fine slow sarà al centro della lista
+    list slow = l, fast = l, prev_s = NULL;
+    while (fast != NULL && fast->next != NULL) { // scorre finché fast non raggiunge la fine
+        prev_s = slow;
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    // taglia la lista a metà e restituisce la seconda metà
+    prev_s->next = NULL;
+    return slow;
 }
 
 // ------------------------- MAIN ---------------------------

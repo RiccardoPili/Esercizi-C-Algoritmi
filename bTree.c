@@ -91,6 +91,7 @@ int sum_mul3(btree b) {
     post: Conta il numero di nodi interni (che hanno almeno una foglia)
 */
 int count_internals(btree b) {
+    // caso base: albero vuoto o nodo foglia
     if (b == NULL || (b->left == NULL && b->right == NULL)) {
         return 0;
     } else {
@@ -102,6 +103,7 @@ int count_internals(btree b) {
     post: somma dei nodi interni (che hanno almeno una foglia)
 */
 int sum_internals(btree b) {
+    // caso base: albero vuoto o nodo foglia
     if (b == NULL || (b->left == NULL && b->right == NULL)) {
         return 0;
     } else {
@@ -113,9 +115,11 @@ int sum_internals(btree b) {
     post: somma di tutte le foglie dell'albero
 */
 int sum_leaf(btree b) {
+    // caso base: albero vuoto
     if (b == NULL) {
         return 0;
     }
+    // caso base: nodo foglia (restituisce il valore della chiave)
     if (b->left == NULL && b->right == NULL) {
         return b->key;
     }
@@ -150,12 +154,13 @@ list DescList(btree bt) {
     note: se la chiave x è già presente non inserisce il nodo
 */
 btree insert(int x, btree bt) {
+    // caso base: albero vuoto
     if (bt == NULL) {
-        bt = ConsTree(x, NULL, NULL);
+        bt = ConsTree(x, NULL, NULL); // chiama ConsTree per creare un nuovo nodo
     }
-    if (x < bt->key) {
+    if (x < bt->key) { // se x è minore, inserisce a sinistra
         bt->left = insert(x, bt->left);
-    } else if (x > bt->key) {
+    } else if (x > bt->key) { // se x è maggiore, inserisce a destra
         bt->right = insert(x, bt->right);
     }
     return bt;
@@ -233,13 +238,14 @@ bool isOrdered(btree bt) {
     note: bt è un albero binario di ricerca ed è diverso da NULL
 */
 btree antenatoComune(btree bt, int a, int b) {
+    // caso 1: il nodo corrente è compreso tra a e b
     if (a <= bt->key && b >= bt->key) {
         return bt;
-    } else if (bt->key < a) {
+    } else if (bt->key < a) {           // caso 2, cerca a destra
         return antenatoComune(bt->right, a, b);
-    } else if (bt->key > b) {
+    } else if (bt->key > b) {           // caso 3, cerca a sinistra
         return antenatoComune(bt->left, a, b);
-    } else {
+    } else {                            // altrimenti: errore
         printf("Errore: albero o parametri non validi.\n");
         exit(EXIT_FAILURE);
     }

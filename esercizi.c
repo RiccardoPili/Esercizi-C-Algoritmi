@@ -134,9 +134,9 @@ list delete_all(int x, list l) {
     if (m == NULL)
         return m;
     if (m->info == x)
-        return delete_all(x, m->next);
+        return delete_all(x, m->next); // se il primo elemento è uguale a x, lo salto
     else {
-        m->next = delete_all(x, m->next);
+        m->next = delete_all(x, m->next); // aggiorno il puntatore next
         return m;
     }
 }
@@ -148,7 +148,7 @@ list unione(list l, list m) {
         return l;
 
     if (l->info <= m->info) {
-        return Cons(l->info, unione(l->next, m));
+        return Cons(l->info, unione(l->next, m)); // usa Cons per costruire la nuova lista
     } else {
         return Cons(m->info, unione(l, m->next));
     }
@@ -312,9 +312,9 @@ btree antenatoComune(btree bt, int a, int b) {
 list DescList_aux(btree bt, list l) {
     if (bt == NULL)
         return l;
-    l = DescList_aux(bt->left, l);
-    l = Cons(bt->key, l);
-    return DescList_aux(bt->right, l);
+    l = DescList_aux(bt->left, l);      // visita il sottoalbero sinistro
+    l = Cons(bt->key, l);               // aggiunge il nodo corrente alla lista
+    return DescList_aux(bt->right, l);  // visita il sottoalbero destro
 }
 
 list DescList(btree bt) {
